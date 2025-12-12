@@ -41,7 +41,7 @@ def query_handle():
     if query:  # Check query
         try:
             duckdb.sql(query)
-        except (duckdb.ParserException, duckdb.BinderException):
+        except (duckdb.ParserException, duckdb.BinderException, duckdb.CatalogException):
             st.write("Erreur dans la query")
             return
     result = duckdb.sql(query)

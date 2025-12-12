@@ -1,47 +1,52 @@
-import streamlit as st
-import pandas as pd
-import duckdb
+# pylint: disable=missing-module-docstring
+
 import io
 
+import duckdb
+import pandas as pd
+import streamlit as st
+
 # ----- Initialisation bdd ----- #
-csv = '''
+CSV = """
 beverage,price
 orange juice,2.5
 Expresso,2
 Tea,3
-'''
+"""
 
-csv2 = '''
+CSV2 = """
 food_item,food_price
 cookie juice,2.5
 chocolatine,2
 muffin,3
-'''
+"""
 
-beverages = pd.read_csv(io.StringIO(csv))
-food_items = pd.read_csv(io.StringIO(csv2))
+beverages = pd.read_csv(io.StringIO(CSV))
+food_items = pd.read_csv(io.StringIO(CSV2))
 
-answer = '''
+ANSWER = """
 SELECT * FROM beverages
 CROSS JOIN food_items
-'''
+"""
 
-solution_df = duckdb.sql(answer).df()
+solution_df = duckdb.sql(ANSWER).df()
 
 # ----- Mise en page ----- #
 
 # Title
-st.write("""
+st.write(
+    """
 # SQL SRS
 Spaced Repetition System SQL practice
-""")
+"""
+)
 
 # Select Box
 with st.sidebar:
     option = st.selectbox(
         "What would you like to review?",
         ["Joins", "GroupBy", "Windows Functions"],
-        placeholder="Select a theme..."
+        placeholder="Select a theme...",
     )
     st.write("You selected:", option)
 
@@ -62,10 +67,11 @@ if result:
     if n_lines_difference != 0:
         st.write(f"{n_lines_difference} lines missing")
 
-
-    try:    # Check columns
+    try:  # Check columns
         result_df = result_df[solution_df.columns]
-        st.dataframe(result_df.compare(solution_df, result_names=('result', 'expected')))
+        st.dataframe(
+            result_df.compare(solution_df, result_names=("result", "expected"))
+        )
     except KeyError as e:
         st.write("Some columns are missing")
 
@@ -82,4 +88,4 @@ with tab1:
     st.dataframe(solution_df)
 
 with tab2:
-    st.write(answer)
+    st.write(ANSWER)

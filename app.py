@@ -31,6 +31,40 @@ CROSS JOIN food_items
 
 solution_df = duckdb.sql(ANSWER).df()
 
+
+def query_handle():
+    """
+    Check if the SQL query is valid (if invalid return) \n
+    Display the result \n
+    Check if the result is == to the solution
+    """
+    if query:  # Check query
+        try:
+            duckdb.sql(query)
+        except (duckdb.ParserException, duckdb.BinderException):
+            st.write("Erreur dans la query")
+            return
+    result = duckdb.sql(query)
+
+    # Display Query
+    st.dataframe(result)
+
+    if result:
+        result_df = duckdb.sql(query).df()
+
+        n_lines_difference = solution_df.shape[0] - result.shape[0]  # Check lines
+        if n_lines_difference != 0:
+            st.write(f"{n_lines_difference} lines missing")
+
+        try:  # Check columns
+            result_df = result_df[solution_df.columns]
+            st.dataframe(
+                result_df.compare(solution_df, result_names=("result", "expected"))
+            )
+        except KeyError:
+            st.write("Some columns are missing")
+
+
 # ----- Mise en page ----- #
 
 # Title
@@ -54,26 +88,10 @@ with st.sidebar:
 st.header("enter your code:")
 query = st.text_area("votre code SQL ici", key="user_input")
 st.write("You entered:", query)
-result = duckdb.sql(query)
 
-# Result Display
-st.dataframe(duckdb.sql(query))
 
-# Check answer
-if result:
-    result_df = result.df()
-
-    n_lines_difference = solution_df.shape[0] - result.shape[0]  # Check lines
-    if n_lines_difference != 0:
-        st.write(f"{n_lines_difference} lines missing")
-
-    try:  # Check columns
-        result_df = result_df[solution_df.columns]
-        st.dataframe(
-            result_df.compare(solution_df, result_names=("result", "expected"))
-        )
-    except KeyError as e:
-        st.write("Some columns are missing")
+# Handle query (Check query, Display, Compare it to solution)
+query_handle()
 
 
 # Resources Display
